@@ -6,7 +6,16 @@
 #'
 #'
 #' @details
-#' Run a Gibbs sampler using a Dirac spike
+#' Let betah_k, k=1,...,K be a m-dimensional vector of the regression coefficients for the kth study and Sigmah_k  be its estimated covariance matrix. The hierarchical set-up of  DS prior, by considering summary statistics (betah_k and Sigmah_k, k=1,...,K) as the input of the method, is given by:
+#'
+#' betah _k ~ (1 - kappa) delta_0(betah_k) + kappa N_m(0,sigma2 I_m ),
+#'
+#' kappa ~ Beta(a_1,a_2),
+#'
+#' sigma2 ~ inverseGamma (d_1,d_2).
+#'
+#' where delta_0(betah_k) denotes a point mass at 0, such that delta_0(betah_k)=1 if beta_k=0 and  delta_0(betah_k)=0 if  at least one of the $m$ components of beta_k is non-zero.
+#'
 #'
 #'
 #' @param Betah A list containing m-dimensional vectors of the regression coefficients for K studies.
@@ -45,6 +54,7 @@
 #' @md
 #' @export
 
+
 DS <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 1000, burnin = 500, nthin = 2, nchains = 2, a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename) {
   RES1 <- list()
   Result <- list()
@@ -64,23 +74,21 @@ DS <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 1000, burnin = 500,
       ts <- sample(1:nchains, 2)
       for (k in 1:K) {
         AA <- list(RES1[[ts[1]]]$mcmcchain$Beta[[k]], RES1[[ts[2]]]$mcmcchain$Beta[[k]]) # Study k
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
           t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975)))),
           wiqid::simpleRhat(postpack::post_convert(AA))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
       }
     }
     if (nchains == 1) {
       for (k in 1:K) {
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
           t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975))))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
       }
     }
   }
@@ -89,23 +97,21 @@ DS <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 1000, burnin = 500,
       ts <- sample(1:nchains, 2)
       for (k in 1:K) {
         AA <- list(matrix(RES1[[ts[1]]]$mcmcchain$Beta[[k]]), matrix(RES1[[ts[2]]]$mcmcchain$Beta[[k]])) # Study k
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, mean(RES1[[1]]$mcmcchain$Beta[[k]]), sd(RES1[[1]]$mcmcchain$Beta[[k]]),
           t(quantile(RES1[[1]]$mcmcchain$Beta[[k]], c(.025, 0.5, .975))),
           wiqid::simpleRhat(postpack::post_convert(AA))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
       }
     }
     if (nchains == 1) {
       for (k in 1:K) {
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, mean(RES1[[1]]$mcmcchain$Beta[[k]]), sd(RES1[[1]]$mcmcchain$Beta[[k]]),
           t(quantile(RES1[[1]]$mcmcchain$Beta[[k]], c(.025, 0.5, .975)))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
       }
     }
   }
@@ -120,8 +126,6 @@ DS <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 1000, burnin = 500,
 
 
 DS0 <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 100, burnin, nthin = 1, a1 = 0.1, a2 = 1, d1 = 0.1, d2 = 1, snpnames, genename) {
-
-
   # memory.limit(99999999)
 
   Beta <- list()

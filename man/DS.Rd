@@ -64,10 +64,18 @@ DS(
 Run a Gibbs sampler for a multivariate Bayesian sparse group selection model with Dirac spike prior for detecting pleiotropic effects on the traits. This function is designed for summary statistics containing estimated regression coefficients and their estimated covariance matrices.
 }
 \details{
-Run a Gibbs sampler using a Dirac spike
+Let betah_k, k=1,...,K be a m-dimensional vector of the regression coefficients for the kth study and Sigmah_k  be its estimated covariance matrix. The hierarchical set-up of  DS prior, by considering summary statistics (betah_k and Sigmah_k, k=1,...,K) as the input of the method, is given by:
+
+betah _k ~ (1 - kappa) delta_0(betah_k) + kappa N_m(0,sigma2 I_m ),
+
+kappa ~ Beta(a_1,a_2),
+
+sigma2 ~ inverseGamma (d_1,d_2).
+
+where delta_0(betah_k) denotes a point mass at 0, such that delta_0(betah_k)=1 if beta_k=0 and  delta_0(betah_k)=0 if  at least one of the $m$ components of beta_k is non-zero.
 }
 \examples{
-#############################Gene DNAJC1 ###############################################
+############################# Gene DNAJC1 ###############################################
 data(DNAJC1)
 Breast <- DNAJC1$Breast
 Thyroid <- DNAJC1$Thyroid
@@ -84,130 +92,148 @@ RES <- DS(Betah, Sigmah,
   a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
 )
 \dontrun{
-print(RES)
-RES1 <- DS(Betah, Sigmah,
-          kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
-          m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
-          a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
-print(RES1)
-###################Simulated summary level data with K=5 ###############################
-data(Simulated_summary)
-genename <- Simulated_summary$genename
-snpnames <- Simulated_summary$snpnames
-Betah <- Simulated_summary$simBeta
-Sigmah <- Simulated_summary$simSIGMA
-K <- 5
-m <- 10
+  print(RES)
 
-RES <- DS(Betah, Sigmah,
- kappa0 = 0.5, sigma20 = 1,
- m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1,
- a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
-print(RES)
+  RES1 <- DS(Betah, Sigmah,
+    kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES1)
+  ################### Simulated summary level data with K=5 ###############################
+  data(Simulated_summary)
+  genename <- Simulated_summary$genename
+  snpnames <- Simulated_summary$snpnames
+  Betah <- Simulated_summary$simBeta
+  Sigmah <- Simulated_summary$simSIGMA
+  K <- 5
+  m <- 10
 
-RES1 <- DS(Betah, Sigmah,
- kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
- m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
- a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
-print(RES1)
-###################################Gene PARP2 ##########################################
-library(BhGLM)
-data(PARP2)
-Breast <- PARP2$Breast
-Thyroid <- PARP2$Thyroid
-genename <- "PARP2"
-snpnames <- c("rs3093872", "rs3093921", "rs1713411", "rs3093926", "rs3093930", "rs878156")
+  RES <- DS(Betah, Sigmah,
+    kappa0 = 0.5, sigma20 = 1,
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES)
 
-
-Fit1 <- BhGLM::bglm(y1~ ., family=binomial(link="logit"),data=Breast)
-Betah1 <-  Fit1$coefficients[-1]
-Sigmah1 <- cov(coef(arm::sim(Fit1)))[-1,-1]
-
-Fit2 <- BhGLM::bglm(y2~ ., family=binomial(link="logit"),data=Thyroid)
-Betah2 <-  Fit2$coefficients[-1]
-Sigmah2 <- cov(coef(arm::sim(Fit2)))[-1,-1]
-
-Betah <- list(Betah1,Betah2)
-Sigmah <- list(Sigmah1,Sigmah2)
-K <- 2
-m <- 6
-
-RES <- DS(Betah, Sigmah, kappa0=0.5, sigma20=1,
-         m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=1,
-         a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
-print(RES)
-
-RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
-          m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=2,
-         a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
-print(RES1)
-###########Simulated individual level data with K=3 and continuous phynotype ###########
-library(BhGLM)
-data(Simulated_individual)
-Study1 <- Simulated_individual$Study1
-Study2 <- Simulated_individual$Study2
-Study3 <- Simulated_individual$Study3
-K <- 3
-m <- 30
-genename <- "Simulated"
-snpnames <- sprintf("SNP\%s",seq(1:m))
+  RES1 <- DS(Betah, Sigmah,
+    kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES1)
+  ################################### Gene PARP2 ##########################################
+  library(BhGLM)
+  data(PARP2)
+  Breast <- PARP2$Breast
+  Thyroid <- PARP2$Thyroid
+  genename <- "PARP2"
+  snpnames <- c("rs3093872", "rs3093921", "rs1713411", "rs3093926", "rs3093930", "rs878156")
 
 
-Fit1 <- BhGLM::bglm(Y1~ ., family=gaussian,data=data.frame(Study1))
-Betah1 <-  Fit1$coefficients[-1]
-Sigmah1 <- cov(coef(arm::sim(Fit1)))[-1,-1]
-
-Fit2 <- BhGLM::bglm(Y2~ ., family=gaussian,data=data.frame(Study2))
-Betah2 <-  Fit2$coefficients[-1]
-Sigmah2 <- cov(coef(arm::sim(Fit2)))[-1,-1]
-
-Fit3 <- BhGLM::bglm(Y3~ ., family=gaussian,data=data.frame(Study3))
-Betah3 <-  Fit3$coefficients[-1]
-Sigmah3 <- cov(coef(arm::sim(Fit3)))[-1,-1]
-
-Betah <- list(Betah1,Betah2,Betah3)
-Sigmah <- list(Sigmah1,Sigmah2,Sigmah3)
+  Fit1 <- BhGLM::bglm(y1 ~ ., family = binomial(link = "logit"), data = Breast)
+  Betah1 <- Fit1$coefficients[-1]
+  Sigmah1 <- cov(coef(arm::sim(Fit1)))[-1, -1]
 
 
-RES <- DS(Betah, Sigmah, kappa0=0.5, sigma20=1,
-         m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=1,
-         a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
-print(RES)
+  Fit2 <- BhGLM::bglm(y2 ~ ., family = binomial(link = "logit"), data = Thyroid)
+  Betah2 <- Fit2$coefficients[-1]
+  Sigmah2 <- cov(coef(arm::sim(Fit2)))[-1, -1]
 
-RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
-          m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=2,
-          a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
-print(RES1)
+  Betah <- list(Betah1, Betah2)
+  Sigmah <- list(Sigmah1, Sigmah2)
+  K <- 2
+  m <- 6
 
-###########Simulated individual level data with K=2 and gene expression data ###########
-library(BhGLM)
-data(Simulated_individual_survival)
-Study1 <- Simulated_individual_survival$Study1
-Study2 <- Simulated_individual_survival$Study2
-K <- 2
-m <- 10
-genename <- "Simulated"
-snpnames <- sprintf("G\%s",seq(1:m))
+  RES <- DS(Betah, Sigmah,
+    kappa0 = 0.5, sigma20 = 1,
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES)
+
+  RES1 <- DS(Betah, Sigmah,
+    kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES1)
+  ########### Simulated individual level data with K=3 and continuous phynotype ###########
+  library(BhGLM)
+  data(Simulated_individual)
+  Study1 <- Simulated_individual$Study1
+  Study2 <- Simulated_individual$Study2
+  Study3 <- Simulated_individual$Study3
+  K <- 3
+  m <- 30
+  genename <- "Simulated"
+  snpnames <- sprintf("SNP\%s", seq(1:m))
 
 
-Fit1=BhGLM::bcoxph(Study1$T ~ Study1$X)
-Betah1 <- Fit1$coefficients
-Sigmah1 <- Fit1$var
+  Fit1 <- BhGLM::bglm(Y1 ~ ., family = gaussian, data = data.frame(Study1))
+  Betah1 <- Fit1$coefficients[-1]
+  Sigmah1 <- cov(coef(arm::sim(Fit1)))[-1, -1]
 
 
-Fit2=BhGLM::bcoxph(Study2$T ~ Study2$X)
-Betah2 <- Fit2$coefficients
-Sigmah2 <- Fit2$var
-
-Betah <- list(Betah1,Betah2)
-Sigmah <- list(Sigmah1,Sigmah2)
+  Fit2 <- BhGLM::bglm(Y2 ~ ., family = gaussian, data = data.frame(Study2))
+  Betah2 <- Fit2$coefficients[-1]
+  Sigmah2 <- cov(coef(arm::sim(Fit2)))[-1, -1]
 
 
+  Fit3 <- BhGLM::bglm(Y3 ~ ., family = gaussian, data = data.frame(Study3))
+  Betah3 <- Fit3$coefficients[-1]
+  Sigmah3 <- cov(coef(arm::sim(Fit3)))[-1, -1]
 
-RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
-          m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=2,
-          a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
-print(RES1)
+  Betah <- list(Betah1, Betah2, Betah3)
+  Sigmah <- list(Sigmah1, Sigmah2, Sigmah3)
+
+
+  RES <- DS(Betah, Sigmah,
+    kappa0 = 0.5, sigma20 = 1,
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES)
+
+
+  RES1 <- DS(Betah, Sigmah,
+    kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES1)
+
+  ########### Simulated individual level data with K=2 and gene expression data ###########
+  library(BhGLM)
+  data(Simulated_individual_survival)
+  Study1 <- Simulated_individual_survival$Study1
+  Study2 <- Simulated_individual_survival$Study2
+  K <- 2
+  m <- 10
+  genename <- "Simulated"
+  snpnames <- sprintf("G\%s", seq(1:m))
+
+
+  Fit1 <- BhGLM::bcoxph(Study1$T ~ Study1$X)
+  Betah1 <- Fit1$coefficients
+  Sigmah1 <- Fit1$var
+
+
+  Fit2 <- BhGLM::bcoxph(Study2$T ~ Study2$X)
+  Betah2 <- Fit2$coefficients
+  Sigmah2 <- Fit2$var
+
+  Betah <- list(Betah1, Betah2)
+  Sigmah <- list(Sigmah1, Sigmah2)
+
+
+
+  RES1 <- DS(Betah, Sigmah,
+    kappa0 = c(0.2, 0.5), sigma20 = c(1, 2),
+    m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
+    a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
+  )
+  print(RES1)
 }
 }
 \references{

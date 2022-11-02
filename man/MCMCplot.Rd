@@ -4,7 +4,17 @@
 \alias{MCMCplot}
 \title{MCMC plot}
 \usage{
-MCMCplot(Result = Result, k = k, nchains = nchains, whichsnps = whichsnps)
+MCMCplot(
+  Result = Result,
+  k = k,
+  nchains = nchains,
+  whichsnps = whichsnps,
+  betatype = "l",
+  acftype = "correlation",
+  dencol = "white",
+  denlty = 1,
+  denbg = "white"
+)
 }
 \arguments{
 \item{Result}{All the generated results by CS/DS/HS function.}
@@ -14,6 +24,16 @@ MCMCplot(Result = Result, k = k, nchains = nchains, whichsnps = whichsnps)
 \item{nchains}{Number of Markov chains run in Result.}
 
 \item{whichsnps}{The name of SNPs.}
+
+\item{betatype}{The type of plot desired. The following values are possible: "p" for points, "l" for lines, "b" for both points and lines, "c" for empty points joined by lines, "o" for overplotted points and lines, "s" and "S" for stair steps and "h" for histogram-like vertical lines. Finally, "n" does not produce any points or lines.}
+
+\item{acftype}{String giving the type of ACF to be computed. Allowed values are "correlation" (the default), "covariance" or "partial". Will be partially matched.}
+
+\item{dencol}{The color for filling the density plot.}
+
+\item{denlty}{The line type to be used in the density plot.}
+
+\item{denbg}{The color to be used for the background of the density plot.}
 }
 \description{
 Trace plot, density plot and ACF plot for the output of CS/DS/HS. The plot is able to draw at most ten SNPs.
@@ -40,7 +60,11 @@ RES1 <- DS(Betah, Sigmah,
            a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
 )
 
-MCMCplot(Result = RES1, k = 2, nchains = 1, whichsnps = sample(snpnames, 7))
+
+MCMCplot(Result = RES1, k = 2, nchains = 1, whichsnps = sample(snpnames, 7),
+                     betatype = "l",
+                     acftype = "correlation",
+                     dencol = "white", denlty = 1, denbg = "white")
 ###################Simulated summary level data with K=5 ###############################
 \dontrun{
 data(Simulated_summary)
@@ -56,14 +80,20 @@ RES1 <- DS(Betah, Sigmah,
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
  a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
 
-MCMCplot(Result = RES1, k = 3, nchains = 2, whichsnps = sample(snpnames, 3))
+MCMCplot(Result = RES1, k = 3, nchains = 2, whichsnps = sample(snpnames, 3),
+         betatype = "l",
+         acftype = "partial",
+         dencol = "blue", denlty = 1, denbg = "black")
 
 RES1 <- DS(Betah, Sigmah,
  kappa0 = c(0.2, 0.5, 0.6), sigma20 = c(1, 2, 1.5),
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 3,
  a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
 
-MCMCplot(Result = RES1, k = 3, nchains = 3, whichsnps = sample(snpnames, 5))
+MCMCplot(Result = RES1, k = 3, nchains = 3, whichsnps = sample(snpnames, 5),
+         betatype = "l",
+         acftype = "partial",
+         dencol = "white", denlty = 1, denbg = "white")
 #############################Gene DNAJC1 ###############################################
 pvalue <- matrix(0, K, m)
 for (k in 1:K) {
@@ -85,9 +115,10 @@ RES <- CS(Betah, Sigmah,
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1, a1 = 0.1, a2 = 0.1,
 c1 = 0.1, c2 = 0.1, sigma2 = 10^-3, snpnames = snpnames, genename = genename)
 
-MCMCplot(Result = RES1, k = 1, nchains = 1, whichsnps = sample(snpnames, 7))
-
-
+MCMCplot(Result = RES1, k = 1, nchains = 1, whichsnps = sample(snpnames, 7),
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "white", denlty = 1, denbg = "white")
 ###################################Gene PARP2 ##########################################
 library(BhGLM)
 data(PARP2)
@@ -115,15 +146,22 @@ RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
           m=m, K=K, niter=1000, burnin=500, nthin=1, nchains=2,
           a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
 
-MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames)
+MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames,
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "red", denlty = 1, denbg = "white")
 
 
 RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
           m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=2,
           a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
 
-MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames)
+MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames,
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "white", denlty = 1, denbg = "white")
 }
+
 }
 \references{
 Baghfalaki, T., Sugier, P. E., Truong, T., Pettitt, A. N., Mengersen, K., & Liquet, B. (2021). Bayesian meta analysis models for cross cancer genomic investigation of pleiotropic effects using group structure. Statistics in Medicine, 40(6), 1498-1518.

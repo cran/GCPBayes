@@ -6,7 +6,15 @@
 #'
 #'
 #' @details
-#' Run a Gibbs sampler using a Continuous spike
+#' Let betah_k, k=1,...,K be a m-dimensional vector of the regression coefficients for the kth study and Sigmah_k  be its estimated covariance matrix. The hierarchical set-up of  CS prior, by considering summary statistics (betah_k and Sigmah_k, k=1,...,K) as the input of the method, is given by:
+#'
+#' betah_k ~ (1 - zeta_k) N_m(0,sigma2 I_m) + zeta_k N_m(0,tau2 I_m ),
+#'
+#' zeta_k ~  Ber(kappa),
+#'
+#' kappa ~ Beta(a_1,a_2),
+#'
+#' tau2 ~ inverseGamma (c_1,c_2).
 #'
 #'
 #' @param Betah A list containing m-dimensional vectors of the regression coefficients for K studies.
@@ -67,23 +75,21 @@ CS <- function(Betah, Sigmah, kappa0, tau20, zeta0,
       ts <- sample(1:nchains, 2)
       for (k in 1:K) {
         AA <- list(RES1[[ts[1]]]$mcmcchain$Beta[[k]], RES1[[ts[2]]]$mcmcchain$Beta[[k]]) # Study k
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
           t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975)))),
           wiqid::simpleRhat(postpack::post_convert(AA))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
       }
     }
     if (nchains == 1) {
       for (k in 1:K) {
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
           t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975))))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
       }
     }
   }
@@ -92,23 +98,21 @@ CS <- function(Betah, Sigmah, kappa0, tau20, zeta0,
       ts <- sample(1:nchains, 2)
       for (k in 1:K) {
         AA <- list(matrix(RES1[[ts[1]]]$mcmcchain$Beta[[k]]), matrix(RES1[[ts[2]]]$mcmcchain$Beta[[k]])) # Study k
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, mean(RES1[[1]]$mcmcchain$Beta[[k]]), sd(RES1[[1]]$mcmcchain$Beta[[k]]),
           t(quantile(RES1[[1]]$mcmcchain$Beta[[k]], c(.025, 0.5, .975))),
           wiqid::simpleRhat(postpack::post_convert(AA))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
       }
     }
     if (nchains == 1) {
       for (k in 1:K) {
-        Tab <- data.frame(
+        Summary$Beta[[k]] <- data.frame(
           snpnames, mean(RES1[[1]]$mcmcchain$Beta[[k]]), sd(RES1[[1]]$mcmcchain$Beta[[k]]),
           t(quantile(RES1[[1]]$mcmcchain$Beta[[k]], c(.025, 0.5, .975)))
         )
-        colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
-        Summary$Beta[[k]] <- Tab
+        colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
       }
     }
   }
@@ -122,7 +126,6 @@ CS <- function(Betah, Sigmah, kappa0, tau20, zeta0,
 
   return(RES1new)
 }
-
 
 
 

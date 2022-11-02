@@ -3,6 +3,9 @@
 export(CS)
 export(DS)
 export(HS)
+export(summaryCS)
+export(summaryDS)
+export(summaryHS)
 export(MCMCplot)
 importFrom(graphics,lines)
 importFrom(graphics,par)
@@ -14,3 +17,9 @@ importFrom(stats,quantile)
 importFrom(stats,rbeta)
 importFrom(stats,rbinom)
 importFrom(stats,sd)
+importFrom("graphics", "polygon", "rect")
+importFrom("stats", ".getXlevels", "fitted", "gaussian", "glm.control",
+               "is.empty.model", "make.link", "model.extract",
+               "model.matrix", "model.offset", "model.response",
+               "model.weights", "optimize")
+importFrom("utils", "install.packages")

@@ -6,7 +6,21 @@
 #'
 #'
 #' @details
-#' Run a Gibbs sampler using a hierarchical spike.
+#' For considering the HS prior, a reparameterization of betah_k is considered as betah_k = V_k^0.5 b_k,  V_k^0.5 = diag(tau_k1,...,tau_km)$. Therfore, we have the following hirarchical model:
+#'
+#' b_k ~ (1 - kappa) delta_0(b_k) + kappa N_m(0,sigma2 I_m ),
+#'
+#' tau_kj ~ (1 - kappa^*) delta_0(tau_kj) + kappa TN(0,s2),
+#'
+#' kappa ~ Beta(a_1,a_2),
+#'
+#' kappa^* ~ Beta(c_1,c_2),
+#'
+#' sigma2 ~ inverseGamma (d_1,d_2).
+#'
+#' s2 ~ inverseGamma (e_1,e_2).
+#'
+#' where delta_0(betah_k) denotes a point mass at 0, such that delta_0(betah_k)=1 if beta_k=0 and  delta_0(betah_k)=0 if  at least one of the $m$ components of beta_k is non-zero and TN(0,s2)  denotes a univariate truncated normal distribution at zero with mean 0 and variance s2.
 #'
 #'
 #' @param Betah A list containing m-dimensional vectors of the regression coefficients for K studies.
@@ -78,22 +92,18 @@ HS <- function(Betah, Sigmah, kappa0 = kappa0, kappastar0 = kappastar0, sigma20 
     Result[[j]] <- RES1[[j]]$mcmcchain
   }
   Criteria <- RES1[[j]]$Criteria
-  AAT <- t(apply(RES1[[1]]$mcmcchain$Beta[[1]], 2, function(x) quantile(x, c(.025, 0.5, .975))))
   BBT <- c()
   for (k in 1:K) {
     BBT[k] <- max(RES1[[1]]$mcmcchain$Beta[[k]])
   }
   if ((nchains == 1)) {
-    #  if((nchains==1)| (max(AAT)==0)| (min(BBT)==0) ){
-
     Summary <- list()
     for (k in 1:K) {
-      Tab <- data.frame(
+      Summary$Beta[[k]] <- data.frame(
         snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
         t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975))))
       )
-      colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
-      Summary$Beta[[k]] <- Tab
+      colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc")
     }
   } else {
     ts <- sample(1:nchains, 2)
@@ -101,13 +111,12 @@ HS <- function(Betah, Sigmah, kappa0 = kappa0, kappastar0 = kappastar0, sigma20 
     for (k in 1:K) {
       AA <- list(RES1[[ts[1]]]$mcmcchain$Beta[[k]], RES1[[ts[2]]]$mcmcchain$Beta[[k]]) # Study k
 
-      Tab <- data.frame(
+      Summary$Beta[[k]] <- data.frame(
         snpnames, apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, mean), apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, sd),
         t(apply(RES1[[1]]$mcmcchain$Beta[[k]], 2, function(x) quantile(x, c(.025, 0.5, .975)))),
         wiqid::simpleRhat(postpack::post_convert(AA))
       )
-      colnames(Tab) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
-      Summary$Beta[[k]] <- Tab
+      colnames(Summary$Beta[[k]]) <- cbind("Name of SNP", "Mean", "SD", "val2.5pc", "Median", "val97.5pc", "BGR")
     }
   }
   RES1new <- list(MCMCChain = Result, Criteria = Criteria, Summary = Summary, Indicator = RES1[[1]]$Indicator)

@@ -23,3 +23,6 @@ Taban Baghfalaki \email{t.baghfalaki@gmail.com}, \email{t.baghfalaki@modares.ac.
 \keyword{DS}
 \keyword{HS}
 \keyword{MCMCplot}
+\keyword{summaryCS}
+\keyword{summaryDS}
+\keyword{summaryHS}

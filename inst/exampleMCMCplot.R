@@ -16,7 +16,11 @@ RES1 <- DS(Betah, Sigmah,
            a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename
 )
 
-MCMCplot(Result = RES1, k = 2, nchains = 1, whichsnps = sample(snpnames, 7))
+
+MCMCplot(Result = RES1, k = 2, nchains = 1, whichsnps = sample(snpnames, 7),
+                     betatype = "l",
+                     acftype = "correlation",
+                     dencol = "white", denlty = 1, denbg = "white")
 ###################Simulated summary level data with K=5 ###############################
 \dontrun{
 data(Simulated_summary)
@@ -32,14 +36,20 @@ RES1 <- DS(Betah, Sigmah,
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 2,
  a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
 
-MCMCplot(Result = RES1, k = 3, nchains = 2, whichsnps = sample(snpnames, 3))
+MCMCplot(Result = RES1, k = 3, nchains = 2, whichsnps = sample(snpnames, 3),
+         betatype = "l",
+         acftype = "partial",
+         dencol = "blue", denlty = 1, denbg = "black")
 
 RES1 <- DS(Betah, Sigmah,
  kappa0 = c(0.2, 0.5, 0.6), sigma20 = c(1, 2, 1.5),
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 3,
  a1 = 0.1, a2 = 0.1, d1 = 0.1, d2 = 0.1, snpnames, genename)
 
-MCMCplot(Result = RES1, k = 3, nchains = 3, whichsnps = sample(snpnames, 5))
+MCMCplot(Result = RES1, k = 3, nchains = 3, whichsnps = sample(snpnames, 5),
+         betatype = "l",
+         acftype = "partial",
+         dencol = "white", denlty = 1, denbg = "white")
 #############################Gene DNAJC1 ###############################################
 pvalue <- matrix(0, K, m)
 for (k in 1:K) {
@@ -61,9 +71,10 @@ RES <- CS(Betah, Sigmah,
  m = m, K = K, niter = 2000, burnin = 1000, nthin = 2, nchains = 1, a1 = 0.1, a2 = 0.1,
 c1 = 0.1, c2 = 0.1, sigma2 = 10^-3, snpnames = snpnames, genename = genename)
 
-MCMCplot(Result = RES1, k = 1, nchains = 1, whichsnps = sample(snpnames, 7))
-
-
+MCMCplot(Result = RES1, k = 1, nchains = 1, whichsnps = sample(snpnames, 7),
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "white", denlty = 1, denbg = "white")
 ###################################Gene PARP2 ##########################################
 library(BhGLM)
 data(PARP2)
@@ -91,12 +102,19 @@ RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
           m=m, K=K, niter=1000, burnin=500, nthin=1, nchains=2,
           a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
 
-MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames)
+MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames,
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "red", denlty = 1, denbg = "white")
 
 
 RES1 <- DS(Betah, Sigmah, kappa0=c(0.2,0.5), sigma20=c(1,2),
           m=m, K=K, niter=2000, burnin=1000, nthin=2, nchains=2,
           a1=0.1, a2=0.1, d1=0.1, d2=0.1, snpnames, genename)
 
-MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames)
+MCMCplot(Result=RES1, k=1, nchains=2, whichsnps=snpnames,
+         betatype = "l",
+         acftype = "correlation",
+         dencol = "white", denlty = 1, denbg = "white")
 }
+

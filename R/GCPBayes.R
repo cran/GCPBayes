@@ -8,6 +8,9 @@
 #' @keywords CS
 #' @keywords DS
 #' @keywords HS
+#' @keywords summaryCS
+#' @keywords summaryDS
+#' @keywords summaryHS
 #' @keywords MCMCplot
 #'
 #' @author Taban Baghfalaki \email{t.baghfalaki@gmail.com}, \email{t.baghfalaki@modares.ac.ir}
