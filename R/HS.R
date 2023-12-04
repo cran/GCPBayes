@@ -182,14 +182,14 @@ e2_Monte_Carlo_EM <- function(Betah, Sigmah, kappa0 = kappa0,
       Sigmahk <- Sigmah[[k]]
 
       ##################### Beta_k ####
-      Omega1 <- Vk %*% MASS::ginv(Sigmahk) %*% Vk + (1 / sigma2[r - 1]) * diag(m)
-      Mean1 <- MASS::ginv(Omega1) %*% Vk %*% MASS::ginv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
+      Omega1 <- Vk %*% arma_inv(Sigmahk) %*% Vk + (1 / sigma2[r - 1]) * diag(m)
+      Mean1 <- arma_inv(Omega1) %*% Vk %*% arma_inv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
       kappat1 <- (1 + (kappa[r - 1] / (1 - kappa[r - 1]) *
         exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 -
-          .5 * (determinant(Omega1, logarithm = TRUE)$modulus) - m / 2 * log(sigma2[r - 1]))))^-1
+          .5 *arma_log_det(Omega1) - m / 2 * log(sigma2[r - 1]))))^-1
 
       Tab <- rbinom(1, 1, as.numeric(kappat1))
-      HH1 <- MASS::ginv(Omega1)
+      HH1 <- arma_inv(Omega1)
       gdata::lowerTriangle(HH1) <- gdata::upperTriangle(HH1, byrow = TRUE)
       isSymmetric(HH1)
       b$b[[k]][r, ] <- mvtnorm::rmvnorm(1, mean = Mean1, sigma = HH1) * (1 - Tab)
@@ -204,9 +204,9 @@ e2_Monte_Carlo_EM <- function(Betah, Sigmah, kappa0 = kappa0,
       for (j in 1:m) {
         Sigmahk <- Sigmah[[k]]
 
-        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% solve(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
         vkj1 <- b$b[[k]][r, j]^2 / sigmabar1[j] + 1 / s2[r - 1]
-        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% solve(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
         B1 <- A1 * b$b[[k]][r, j] / (vkj1 * sigmabar1[j])
         vkj1B12 <- A1^2 * b$b[[k]][r, j]^2 / (vkj1 * sigmabar1[j]^2)
         T1 <- (log(2) + pnorm(B1 * sqrt(vkj1), log.p = TRUE))
@@ -290,13 +290,13 @@ HS0 <- function(Betah, Sigmah, kappa0, kappastar0, sigma20, s20 = s20, m, K = K,
       Sigmahk <- Sigmah[[k]]
 
       ##################### Beta_k ####
-      Omega1 <- Vk %*% MASS::ginv(Sigmahk) %*% Vk + (1 / sigma2[r - 1]) * diag(m)
-      Mean1 <- MASS::ginv(Omega1) %*% Vk %*% MASS::ginv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
+      Omega1 <- Vk %*% arma_inv(Sigmahk) %*% Vk + (1 / sigma2[r - 1]) * diag(m)
+      Mean1 <- arma_inv(Omega1) %*% Vk %*% arma_inv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
       kappat1 <- (1 + (kappa[r - 1] / (1 - kappa[r - 1]) *
         exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 -
-          .5 * (determinant(Omega1, logarithm = TRUE)$modulus) - m / 2 * log(sigma2[r - 1]))))^-1
+          .5 * arma_log_det(Omega1) - m / 2 * log(sigma2[r - 1]))))^-1
       Tab <- rbinom(1, 1, as.numeric(kappat1))
-      HH1 <- MASS::ginv(Omega1)
+      HH1 <- arma_inv(Omega1)
       gdata::lowerTriangle(HH1) <- gdata::upperTriangle(HH1, byrow = TRUE)
       isSymmetric(HH1)
       b$b[[k]][r, ] <- mvtnorm::rmvnorm(1, mean = Mean1, sigma = HH1) * (1 - Tab)
@@ -311,9 +311,9 @@ HS0 <- function(Betah, Sigmah, kappa0, kappastar0, sigma20, s20 = s20, m, K = K,
       for (j in 1:m) {
         Sigmahk <- Sigmah[[k]]
 
-        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% solve(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
         vkj1 <- b$b[[k]][r, j]^2 / sigmabar1[j] + 1 / s2[r - 1]
-        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% solve(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
         B1 <- A1 * b$b[[k]][r, j] / (vkj1 * sigmabar1[j])
         vkj1B12 <- A1^2 * b$b[[k]][r, j]^2 / (vkj1 * sigmabar1[j]^2)
         T1 <- (log(2) + pnorm(B1 * sqrt(vkj1), log.p = TRUE))

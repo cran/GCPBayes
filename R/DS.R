@@ -154,13 +154,13 @@ DS0 <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 100, burnin, nthin
     ##################### Beta_k ####
     for (k in 1:K) {
       Sigmahk <- Sigmah[[k]] # Sigmah[((k-1)*m+1):(k*m),((k-1)*m+1):(k*m)]
-      Omega1 <- MASS::ginv(Sigmahk) + (1 / sigma2[r - 1]) * diag(m)
-      Mean1 <- MASS::ginv(Omega1) %*% MASS::ginv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
+      Omega1 <- arma_inv(Sigmahk) + (1 / sigma2[r - 1]) * diag(m)
+      Mean1 <- arma_inv(Omega1) %*% arma_inv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
       kappat1 <- 1 / (1 + (kappa[r - 1] / (1 - kappa[r - 1]) *
-        exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 - .5 * (determinant(Omega1, logarithm = TRUE)$modulus) - m / 2 * log(sigma2[r - 1]))))
+        exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 - .5*arma_log_det(Omega1) - m / 2 * log(sigma2[r - 1]))))
 
       Tab <- rbinom(1, 1, as.numeric(kappat1))
-      if (Tab == 0) (Beta$Beta[[k]][r, ] <- mvtnorm::rmvnorm(1, mean = Mean1, sigma = MASS::ginv(Omega1)))
+      if (Tab == 0) (Beta$Beta[[k]][r, ] <- mvtnorm::rmvnorm(1, mean = Mean1, sigma = arma_inv(Omega1)))
       if (Tab == 1) (Beta$Beta[[k]][r, ] <- rep(0, m))
       Psi[k, r] <- 1 - Tab
     }
@@ -257,11 +257,11 @@ DS0 <- function(Betah, Sigmah, kappa0, sigma20, m, K, niter = 100, burnin, nthin
   for (r in 1:(length(indexn))) {
     for (k in 1:K) {
       Sigmahk <- Sigmah[[k]] # [((k-1)*m+1):(k*m),((k-1)*m+1):(k*m)]
-      Omega1 <- MASS::ginv(Sigmahk) + (1 / sigma2[r]) * diag(m)
-      Mean1 <- MASS::ginv(Omega1) %*% MASS::ginv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
+      Omega1 <- arma_inv(Sigmahk) + (1 / sigma2[r]) * diag(m)
+      Mean1 <- arma_inv(Omega1) %*% arma_inv(Sigmahk) %*% matrix(Betah[[k]], m, 1)
 
       pzeta[r, k] <- 1 / (1 + (kappa[r] / (1 - kappa[r]) *
-        exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 - .5 * (determinant(Omega1, logarithm = TRUE)$modulus) - m / 2 * log(sigma2[r]))))
+        exp(.5 * t(Mean1) %*% Omega1 %*% Mean1 - .5 *arma_log_det(Omega1) - m / 2 * log(sigma2[r]))))
     }
 
     pz[r] <- prod(pzeta[r, 1:K])
