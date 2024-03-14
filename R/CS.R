@@ -2,7 +2,7 @@
 #'
 #'
 #' @description
-#' Run a Gibbs sampler for a multivariate Bayesian sparse group selection model with Continuous spike prior for detecting pleiotropic effects on the traits. This function is designed for summary statistics containing estimated regression coefficients and their estimated covariance matrices.
+#' Utilize a Gibbs sampler to conduct analysis on a multivariate Bayesian sparse group selection model, employing a Continuous spike prior to identify pleiotropic effects across traits. This function is tailored for summary statistics comprising estimated regression coefficients and their corresponding covariance matrices.
 #'
 #'
 #' @details

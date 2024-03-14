@@ -2,12 +2,12 @@
 #'
 #'
 #' @description
-#' summaryHS is a generic function used to produce result summaries of the results of HS function.
+#' The summaryHS function serves as a versatile tool for generating result summaries derived from the output of the HS function.
 #'
 #'
 #'
 #'
-#' @param object a result of a call to DS
+#' @param object a result of a call to HS
 #'
 #' @return
 #' - Name of Gene: the component from object.

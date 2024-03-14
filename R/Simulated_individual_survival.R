@@ -1,7 +1,8 @@
 #' Simulated individual level survival data
 #'
 #' A list containing the individual level data including gene expression data for survival outcomes for pleiotropy investigation of two studies.
-#' #' @name Simulated_individual_survival
+#'
+#' @name Simulated_individual_survival
 #' @format A list which contains the name of gene, the name of the SNPs, the vectors and the matrices for the summary statistics of each study.
 #' \describe{
 #'   \item{Study1}{The inividual level data including survival outcomes and gene expression data of Study 1}

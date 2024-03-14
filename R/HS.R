@@ -2,7 +2,7 @@
 #'
 #'
 #' @description
-#' Run a Gibbs sampler for a multivariate Bayesian sparse group selection model with hierarchical spike prior for detecting pleiotropic effects on the traits. This function is designed for summary statistics containing estimated regression coefficients and their estimated covariance matrices.
+#' Utilize a Gibbs sampler to conduct analysis on a multivariate Bayesian sparse group selection model, employing a hierarchical spike prior to identify pleiotropic effects across traits. This function is tailored for summary statistics comprising estimated regression coefficients and their corresponding covariance matrices.
 #'
 #'
 #' @details
@@ -203,10 +203,18 @@ e2_Monte_Carlo_EM <- function(Betah, Sigmah, kappa0 = kappa0,
       sigmabar1 <- sigmabar2 <- c()
       for (j in 1:m) {
         Sigmahk <- Sigmah[[k]]
-
-        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        if("matrix" %in% class(Sigmahk[-j, -j]))
+          sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        else
+          sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(matrix(Sigmahk[-j, -j], 1, 1)) %*% Sigmahk[-j, j]
+        
+         
         vkj1 <- b$b[[k]][r, j]^2 / sigmabar1[j] + 1 / s2[r - 1]
-        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        if("matrix" %in% class(Sigmahk[-j, -j]))
+          A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        else
+          A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(matrix(Sigmahk[-j, -j], 1, 1)) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        
         B1 <- A1 * b$b[[k]][r, j] / (vkj1 * sigmabar1[j])
         vkj1B12 <- A1^2 * b$b[[k]][r, j]^2 / (vkj1 * sigmabar1[j]^2)
         T1 <- (log(2) + pnorm(B1 * sqrt(vkj1), log.p = TRUE))
@@ -310,10 +318,18 @@ HS0 <- function(Betah, Sigmah, kappa0, kappastar0, sigma20, s20 = s20, m, K = K,
       sigmabar1 <- sigmabar2 <- c()
       for (j in 1:m) {
         Sigmahk <- Sigmah[[k]]
-
-        sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        if("matrix" %in% class(Sigmahk[-j, -j]))
+          sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% Sigmahk[-j, j]
+        else
+          sigmabar1[j] <- Sigmahk[j, j] - Sigmahk[j, -j] %*% arma_inv(matrix(Sigmahk[-j, -j],1,1)) %*% Sigmahk[-j, j]
+        
         vkj1 <- b$b[[k]][r, j]^2 / sigmabar1[j] + 1 / s2[r - 1]
-        A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        
+        if("matrix" %in% class(Sigmahk[-j, -j]))
+          A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(Sigmahk[-j, -j]) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        else
+          A1 <- Betah[[k]][j] - Sigmahk[j, -j] %*% arma_inv(matrix(Sigmahk[-j, -j],1,1)) %*% (Betah[[k]][-j] - Beta$Beta[[k]][r, -j])
+        
         B1 <- A1 * b$b[[k]][r, j] / (vkj1 * sigmabar1[j])
         vkj1B12 <- A1^2 * b$b[[k]][r, j]^2 / (vkj1 * sigmabar1[j]^2)
         T1 <- (log(2) + pnorm(B1 * sqrt(vkj1), log.p = TRUE))

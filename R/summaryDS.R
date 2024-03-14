@@ -2,7 +2,7 @@
 #'
 #'
 #' @description
-#' summaryDS is a generic function used to produce result summaries of the results of DS function.
+#' The summaryDS function serves as a versatile tool for generating result summaries derived from the output of the DS function.
 #'
 #'
 #'

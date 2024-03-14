@@ -2,8 +2,8 @@
 #'
 #'
 #' @description
-#' summaryCS is a generic function used to produce result summaries of the results of CS function.
-#'
+#' The summaryCS function serves as a versatile tool for generating result summaries derived from the output of the CS function.
+#' 
 #'
 #'
 #'
